@@ -11,8 +11,12 @@ KohonenPallete::KohonenPallete(
     _network_container(),
     _data( input_pallete.size(), data_type(3) ),
 
-    // These are not really needed here
-    _training_function( 0.2, 0 ),
+    // Training-related functors
+    _topology(),
+    _space_function( 100, 1 ),
+    _network_function( 10, 1 ),
+    _weights( _network_function, _space_function, _topology, _distance_function ),
+    _training_function( _weights, 0.3 ),
     _training_algorithm( _training_function )
 {
     /* _data will be the same as input_pallete, but normalized to [0, 1].
@@ -46,6 +50,11 @@ KohonenPallete::KohonenPallete(
 
 void KohonenPallete::train() {
     _training_algorithm( _data.begin(), _data.end(), &_network_container );
+    _training_algorithm.
+        training_functional.
+        generalized_training_weight.
+        network_function.
+        sigma *= 0.98;
     std::random_shuffle( _data.begin(), _data.end() );
 }
 

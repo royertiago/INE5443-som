@@ -25,8 +25,8 @@ public:
     typedef
         neural_net::Cauchy_function
         <
-            double,
-            double,
+            data_type::value_type,
+            data_type::value_type,
             int
         >
         activation_function_type;
@@ -50,24 +50,56 @@ public:
         >
         network_container_type;
 
-    // Winner-takes-all algorithm typedefs
+    // Winner Takes Most algorithm typedefs
+    typedef neural_net::Max_topology< std::size_t > topology_type;
     typedef
-        neural_net::Wta_proportional_training_functional
+        neural_net::Gauss_function
+        <
+            data_type::value_type,
+            data_type::value_type,
+            int
+        >
+        space_function_type;
+    typedef
+        neural_net::Gauss_function
+        <
+            std::size_t,
+            data_type::value_type,
+            int
+        >
+        network_function_type;
+    typedef
+        neural_net::Classic_training_weight
+        <
+            data_type,
+            int,
+            network_function_type,
+            space_function_type,
+            topology_type,
+            distance_function_type,
+            std::size_t
+        >
+        weight_type;
+    typedef
+        neural_net::Wtm_classical_training_functional
         <
             data_type,
             double,
-            int
+            int,
+            std::size_t,
+            weight_type
         >
-        wta_training_function_type;
+        wtm_training_function_type;
     typedef
-        neural_net::Wta_training_algorithm
+        neural_net::Wtm_training_algorithm
         <
             network_container_type,
             data_type,
             std::vector<data_type>::iterator,
-            wta_training_function_type
+            wtm_training_function_type,
+            std::size_t
         >
-        wta_training_algorithm_type;
+        wtm_training_algorithm_type;
 
     /* Constructs a Kohonen network in a rectangular grid
      * with the given amount or rows and columns,
@@ -99,8 +131,12 @@ private:
     distance_function_type _distance_function;
     network_container_type _network_container;
     std::vector< data_type > _data;
-    wta_training_function_type _training_function;
-    wta_training_algorithm_type _training_algorithm;
+    topology_type _topology;
+    space_function_type _space_function;
+    network_function_type _network_function;
+    weight_type _weights;
+    wtm_training_function_type _training_function;
+    wtm_training_algorithm_type _training_algorithm;
 };
 
 #endif // KOHONEN_PALLETE_H
