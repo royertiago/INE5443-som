@@ -1,5 +1,5 @@
 #include "kohonen_pallete.h"
-#include <iostream>
+
 KohonenPallete::KohonenPallete(
     std::size_t rows,
     std::size_t columns,
@@ -21,7 +21,6 @@ KohonenPallete::KohonenPallete(
         _data[i][0] = input_pallete[i].r / 255.0;
         _data[i][1] = input_pallete[i].g / 255.0;
         _data[i][2] = input_pallete[i].b / 255.0;
-        std::cout << _data[i][0] << ' ' << _data[i][1] << ' ' << _data[i][2] << ' ' << '\n';
     }
 
     /* KNNL uses std::rand to generate random numbers.

@@ -1,3 +1,6 @@
 [submodule "knnl"]
 	path = knnl
 	url = https://github.com/royertiago/knnl
+[submodule "cmdline"]
+	path = cmdline
+	url = https://github.com/royertiago/cmdline
