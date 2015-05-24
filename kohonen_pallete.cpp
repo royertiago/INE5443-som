@@ -1,3 +1,4 @@
+#include "std_rand_wrapper.h"
 #include "kohonen_pallete.h"
 
 KohonenPallete::KohonenPallete(
@@ -56,7 +57,7 @@ void KohonenPallete::train( double influence_radius ) {
         sigma = influence_radius;
 
     _training_algorithm( _data.begin(), _data.end(), &_network_container );
-    std::random_shuffle( _data.begin(), _data.end() );
+    std::shuffle( _data.begin(), _data.end(), std_rand_wrapper() );
 }
 
 color KohonenPallete::operator()( std::size_t i, std::size_t j ) const {
