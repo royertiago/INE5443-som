@@ -52,9 +52,10 @@ void KohonenPallete::train() {
 
 color KohonenPallete::operator()( std::size_t i, std::size_t j ) const {
     return color{
-        (unsigned) (_network_container.objects[i][j].weights[0] * 255),
-        (unsigned) (_network_container.objects[i][j].weights[1] * 255),
-        (unsigned) (_network_container.objects[i][j].weights[2] * 255),
+        // Adding 0.5 at end correctly rounds the weights.
+        (unsigned) (_network_container.objects[i][j].weights[0] * 255 + 0.5),
+        (unsigned) (_network_container.objects[i][j].weights[1] * 255 + 0.5),
+        (unsigned) (_network_container.objects[i][j].weights[2] * 255 + 0.5),
     };
 }
 
