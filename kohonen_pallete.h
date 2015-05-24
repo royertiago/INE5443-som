@@ -111,9 +111,10 @@ public:
         const std::vector< color >& input_pallete
     );
 
-    /* Run one training round with the Winner-takes-all algogrithm.
+    /* Run one training round with the Winner Takes Most algogrithm.
+     * 'radius' is the influence radius the winner will have over other neurons.
      */
-    void train();
+    void train( double radius );
 
     /* Returns the weights of the specified node within the network;
      * that is, which color that node had learned.

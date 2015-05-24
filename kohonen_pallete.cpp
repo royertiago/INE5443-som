@@ -13,8 +13,8 @@ KohonenPallete::KohonenPallete(
 
     // Training-related functors
     _topology(),
-    _space_function( 100, 1 ),
-    _network_function( 10, 1 ),
+    _space_function( 100, 1 ), // This 100 seems to have no effect in the training...
+    _network_function( 10, 1 ), // This 10 is the influence area.
     _weights( _network_function, _space_function, _topology, _distance_function ),
     _training_function( _weights, 0.3 ),
     _training_algorithm( _training_function )
@@ -48,13 +48,14 @@ KohonenPallete::KohonenPallete(
     );
 }
 
-void KohonenPallete::train() {
-    _training_algorithm( _data.begin(), _data.end(), &_network_container );
+void KohonenPallete::train( double influence_radius ) {
     _training_algorithm.
         training_functional.
         generalized_training_weight.
         network_function.
-        sigma *= 0.98;
+        sigma = influence_radius;
+
+    _training_algorithm( _data.begin(), _data.end(), &_network_container );
     std::random_shuffle( _data.begin(), _data.end() );
 }
 

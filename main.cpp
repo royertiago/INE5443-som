@@ -32,13 +32,17 @@ int main() {
     cv::namedWindow( "Kohonen", cv::WINDOW_NORMAL);
     cv::Mat img( rows, cols, CV_8UC3 );
 
+    double radius = 10.0;
+    double delta = 0.95;
+
     for( int i = 0; i < 100; i++ ) {
         draw_network( knn, img );
         cv::imshow( "Kohonen", img );
         cv::waitKey( 1 );
 
         std::cout << "Training " << i << '\n';
-        knn.train();
+        knn.train( radius );
+        radius *= delta;
     }
     cv::waitKey(0);
 
