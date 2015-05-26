@@ -24,6 +24,19 @@ namespace command_line {
 "    The influence radius will be multiplied by this value every epoch.\n"
 "    Default: 0.95.\n"
 "\n"
+"--input <filename>\n"
+"    Choose a different color pallete to be learnt by the network.\n"
+"    The file must be in white-space separated RGB format.\n"
+"    For instance, the following text generates the default colors:\n"
+"        255    0    0\n"
+"          0  255    0\n"
+"          0    0  255\n"
+"        255  255    0\n"
+"          0  255  255\n"
+"        255    0  255\n"
+"        255  255  255\n"
+"          0    0    0\n"
+"\n"
 "--seed <N>\n"
 "    Choose N as the seed used by the random number generator.\n"
 "    Default: Generate a time-based seed.\n"
@@ -38,6 +51,7 @@ namespace command_line {
 ;
 }
 
+#include <fstream>
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
 #include "cmdline/args.hpp"
@@ -52,6 +66,30 @@ namespace command_line {
     bool verbose = false;
     double initial_radius = 10.0;
     double delta = 0.95;
+    bool input_set = false;
+
+    std::vector< color > data{
+        {255,   0,   0},
+        {  0, 255,   0},
+        {  0,   0, 255},
+        {255, 255,   0},
+        {  0, 255, 255},
+        {255,   0, 255},
+        {255, 255, 255},
+        {  0,   0,   0},
+    };
+
+    void file_parse( std::string filename ) {
+        data.clear();
+        std::ifstream file( filename );
+        if( ! file ) {
+            std::cerr << "Could not open " << filename << std::endl;
+            std::exit(1);
+        }
+        color c;
+        while( file >> c.r >> c.g >> c.b )
+            data.push_back( c );
+    }
 
     void parse( cmdline::args && args ) {
         while( args.size() > 0 ) {
@@ -70,6 +108,15 @@ namespace command_line {
             }
             if( arg == "--delta" ) {
                 args.range(0, 1) >> delta;
+                continue;
+            }
+            if( arg == "--input" ) {
+                if( input_set ) {
+                    args.log() << "--input suplied twice!" << std::endl;
+                    std::exit(1);
+                }
+                input_set = true;
+                file_parse( args.next() );
                 continue;
             }
             if( arg == "--seed" ) {
@@ -109,19 +156,8 @@ int main( int argc, char ** argv ) {
         std_rand_wrapper::time_seed();
     std::cout << "Seed: " << std_rand_wrapper::seed() << '\n';
 
-    std::vector< color > data{
-        {255,   0,   0},
-        {  0, 255,   0},
-        {  0,   0, 255},
-        {255, 255,   0},
-        {  0, 255, 255},
-        {255,   0, 255},
-        {255, 255, 255},
-        {  0,   0,   0},
-    };
-
     // Kohonen Neural Network
-    KohonenPallete knn( command_line::rows, command_line::cols, data );
+    KohonenPallete knn( command_line::rows, command_line::cols, command_line::data );
 
     cv::namedWindow( "Kohonen", cv::WINDOW_NORMAL);
     cv::Mat img( command_line::rows, command_line::cols, CV_8UC3 );
