@@ -1,7 +1,95 @@
+namespace command_line {
+    const char help_message[] =
+" [options]\n"
+"Make a Kohonen neural network learn a color pallete,\n"
+"using the Winner Takes Most alogrithm.\n"
+"\n"
+"Options:\n"
+"--nodes <rows> <columns>\n"
+"--size <rows> <columns>\n"
+"    Choose the size of the rectangular network.\n"
+"    Defaults: 30 rows, 40 columns.\n"
+"\n"
+"--epochs <N>\n"
+"    Choose the number of training epochs.\n"
+"    Default: 100\n"
+"\n"
+"--initial-radius <F>\n"
+"    Choose the initial influene radius the winner will have in the training.\n"
+"    <F> can be any positive floating-point number.\n"
+"    Default: 10.0.\n"
+"\n"
+"--delta <F>\n"
+"    Choose how fast the influence radius will shrink throughout the training.\n"
+"    The influence radius will be multiplied by this value every epoch.\n"
+"    Default: 0.95.\n"
+"\n"
+"--seed <N>\n"
+"    Choose N as the seed used by the random number generator.\n"
+"    Default: Generate a time-based seed.\n"
+"\n"
+"--verbose\n"
+"    Tell the current epoch in the command line.\n"
+"    Default: non-verbose.\n"
+"\n"
+"--help\n"
+"    Show this text and quit.\n"
+"\n"
+;
+}
+
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
+#include "cmdline/args.hpp"
 #include "kohonen_pallete.h"
 #include "std_rand_wrapper.h"
+
+namespace command_line {
+    bool seed_set = false;
+    unsigned seed = 0;
+    int rows = 30, cols = 40;
+    int epochs = 100;
+    bool verbose = false;
+    double initial_radius = 10.0;
+    double delta = 0.95;
+
+    void parse( cmdline::args && args ) {
+        while( args.size() > 0 ) {
+            std::string arg = args.next();
+            if( arg == "--size" || arg == "--nodes" ) {
+                args >> rows >> cols;
+                continue;
+            }
+            if( arg == "--epochs" ) {
+                args >> epochs;
+                continue;
+            }
+            if( arg == "--initial-radius" ) {
+                args.range(0) >> initial_radius;
+                continue;
+            }
+            if( arg == "--delta" ) {
+                args.range(0, 1) >> delta;
+                continue;
+            }
+            if( arg == "--seed" ) {
+                args >> seed;
+                seed_set = true;
+                continue;
+            }
+            if( arg == "--verbose" ) {
+                verbose = true;
+                continue;
+            }
+            if( arg == "--help" ) {
+                std::cout << args.program_name() << help_message;
+                std::exit(0);
+            }
+            args.log() << "Unknown command line option " << arg << std::endl;
+            std::exit(1);
+        }
+    }
+}
 
 void draw_network( const KohonenPallete & knn, cv::Mat& img ) {
     for( int i = 0; i < img.rows; i++ )
@@ -12,9 +100,15 @@ void draw_network( const KohonenPallete & knn, cv::Mat& img ) {
         }
 }
 
-int main() {
-    std_rand_wrapper::time_seed();
+int main( int argc, char ** argv ) {
+    command_line::parse( cmdline::args(argc, argv) );
+
+    if( command_line::seed_set )
+        std_rand_wrapper::seed( command_line::seed );
+    else
+        std_rand_wrapper::time_seed();
     std::cout << "Seed: " << std_rand_wrapper::seed() << '\n';
+
     std::vector< color > data{
         {255,   0,   0},
         {  0, 255,   0},
@@ -26,21 +120,23 @@ int main() {
         {  0,   0,   0},
     };
 
-    int rows = 30, cols = 40;
-    KohonenPallete knn( rows, cols, data ); // Kohonen Neural Network
+    // Kohonen Neural Network
+    KohonenPallete knn( command_line::rows, command_line::cols, data );
 
     cv::namedWindow( "Kohonen", cv::WINDOW_NORMAL);
-    cv::Mat img( rows, cols, CV_8UC3 );
+    cv::Mat img( command_line::rows, command_line::cols, CV_8UC3 );
 
-    double radius = 10.0;
-    double delta = 0.95;
+    double radius = command_line::initial_radius;
+    double delta = command_line::delta;
 
-    for( int i = 0; i < 100; i++ ) {
+    for( int i = 0; i < command_line::epochs; i++ ) {
         draw_network( knn, img );
         cv::imshow( "Kohonen", img );
         cv::waitKey( 1 );
 
-        std::cout << "Training " << i << '\n';
+        if( command_line::verbose )
+            std::cout << "Epoch " << i + 1 << '\n';
+
         knn.train( radius );
         radius *= delta;
     }
