@@ -52,7 +52,10 @@ Um exemplo de execução está disponível na imagem \ref{demo1}.
 
 \section{Detalhes da Implementação}
 
-Para implementar as redes neurais, eu utilizei a biblioteca \KNNL.
+Para implementar as redes neurais, eu utilizei a biblioteca \KNNL%
+\footnote{
+    http://knnl.sourceforge.net/
+}.
 É uma biblioteca para redes de Kohonen implementada em C++.
 Ela é implementada inteiramente em headers
 e é distribuída junto do código fonte do programa.
@@ -106,5 +109,52 @@ do raio de influência controlado pelo Winner Takes Most.
 Como a semente não influencia o algoritmo de treinamento,
 é possível ver, com pouca interferência externa,
 o que uma maior ou menor taxas de decaimento fazem.
+
+\section{Testes realizados}
+
+Com o algoritmo Winner Takes All,
+apenas um nodo era treinado corretamente para cada cor disponível na entrada.
+Os demais ficavam sempre com seu valor inicial,
+escolhido aleatoriamente;
+portanto, a rede em si não ``aprendia'' nada.
+Portanto, optei pelo Winner Takes Most.
+
+Mesmo assim, apenas alguns poucos nós eram ``protagonistas'' da rede;
+apenas um nó por cor fica mais ativo,
+e domina os outros nós ao seu redor.
+Este comportamento pode ser percebido reduzindo o delta.
+Por exemplo, com semente \lstinline"6291" e delta \lstinline"0.8",
+podemos ver muitos nós que pouco se alteraram desde o começo do treinamento.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.5]{demo2.png}
+    \caption{
+        Imagem gerada com o comando
+        \texttt{./main --seed 6921 --delta 0.8}.
+    }
+    \label{demo2}
+\end{figure}
+
+E, em outros casos,
+mesmo após centenas de épocas de treinamento,
+restam alguns nós com seus valores iniciais.
+Por exemplo, para a semente \lstinline"1432500040",
+cerca de um quarto dos nós não se altera
+(figura \ref{demo3}).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.5]{demo3.png}
+    \caption{
+        Imagem gerada com o comando
+        \texttt{./main --seed 1432500040}.
+    }
+    \label{demo3}
+\end{figure}
+
+Nestas figuras, podemos ver que o nó ``Winner''
+praticamente não possui influência nos nós abaixo e à sua direita.
+Não descobri a causa deste comportamento.
 
 \end{document}
