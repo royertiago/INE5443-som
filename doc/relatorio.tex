@@ -12,13 +12,12 @@
 
 \newcommand{\KNNL}{{\lstinline"KNNL"}}
 \newcommand{\opencv}{{\lstinline"opencv"}}
-\newcommand{\train}{{\lstinline"train"}}
 
 \begin{document}
 
 \title{
     INE5443 --- Reconhecimento de Padrões\\
-    Aprendizado de uma paleda de cores por uma rede de Kohonen
+    Aprendizado de uma paleta de cores por uma rede de Kohonen
 }
 \author{
     Tiago Royer --- 12100776
@@ -58,6 +57,54 @@ Para implementar as redes neurais, eu utilizei a biblioteca \KNNL.
 Ela é implementada inteiramente em headers
 e é distribuída junto do código fonte do programa.
 
+Esta biblioteca é altamante templatizada.
+A própria escolha das funções de ativação dá-se via templates.
+Portanto, cada combinação de algoritmo de treinamento,
+tipo de rede, topologia, função de ativação etc.\ exige
+que o programa seja recompilado com as novas especificações.
+Por simplicidade,
+fiz algumas escolhas arbitrárias,
+que ficaram \emph{hardcoded} em minha aplicação.
+
+Em particular, o algoritmo de aprendizado escolhido foi o
+\emph{Winner Takes Most} (WTM),
+numa rede neural retangular com métrica de Manhattan.
+
 O \opencv foi utilizado para visualização.
+
+\subsection{Interface com o usuário}
+
+O programa possui várias opções de linha de comando;
+um resumo delas pode ser obtido invocando \lstinline"./main --help".
+Em particular, pode ser alterado
+o tamanho da rede,
+a quantidade de épocas de treinamento,
+o valor inicial e a ``taxa de decaimento'' do raio de influência,
+as cores a serem treinadas
+e a semente inicial.
+O arquivo \lstinline"run.sh" possui todos os exemplos de invocação
+apresentados neste relatório.
+
+Todas as opções possuem valores padrão,
+portanto apenas invocar \lstinline"./main" funciona.
+
+A opção \lstinline"--input" permite escolher quais cores
+serão aprendidas pela rede neural.
+O formato de arquivos foi projetado
+para simplificar o parsing via \lstinline"std::istream";
+é apenas uma lista de valores separados por espaços
+(não por vírgulas)
+correspondendo às componentes vermelho, verde e azul das cores escolhidas.
+Dois exemplos são distribuidos com o programa
+--- \lstinline"rgb.txt", com apenas as três cores primárias,
+e \lstinline"color_list.txt", com 27 cores no total.
+
+Uma combinação interessante é \lstinline"--seed" e \lstinline"--delta".
+A primeira opção fornece uma semente ao invés de gerar uma;
+a segunda opção escolhe a ``taxa de decaimento''
+do raio de influência controlado pelo Winner Takes Most.
+Como a semente não influencia o algoritmo de treinamento,
+é possível ver, com pouca interferência externa,
+o que uma maior ou menor taxas de decaimento fazem.
 
 \end{document}
